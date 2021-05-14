@@ -28,12 +28,12 @@ ol, ul {
   font-size: 24px;
   font-weight: bold;
   line-height: 34px;
-  height: 34px;
+  height: 60px;
   margin-right: -1px;
   margin-top: -1px;
   padding: 0;
   text-align: center;
-  width: 34px;
+  width: 60px;
 }
 
 
@@ -52,8 +52,17 @@ ol, ul {
   text-align: center;
   font-size: calc(10px + 2vmin);
   color: white;
+  margin-bottom: 15px;
+}
+.button-holder {
+  margin-bottom: 30px;
+}
+.game-button {
+  font-size: 30px;
+  background-color: #3c1de7;
+  border-radius: 12px;
+  border: 2px solid black;
+  color: white;
+  margin-left: 15px;
 }
 
-.game-info {
-  margin-left: 20px;
-}

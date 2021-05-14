@@ -9,11 +9,24 @@ class Game extends React.Component {
           squares: Array(9).fill(null)
         }],
         xIsNext: true,
-        stepNumber: 0
+        stepNumber: 0,
+        hotseat: true
+      }
+    }
+    componentDidUpdate(prevProps){
+      if(!this.state.hotseat && (this.state.history.length < 10) && !this.state.xIsNext){
+        const history = this.state.history.slice(0,this.state.stepNumber + 1);
+        const current = history[history.length - 1];
+        const squares = current.squares.slice();
+        let xIsNext = this.state.xisNext;
+        let depth = this.state.stepNumber;
+
+        let x = findBestMove(squares, xIsNext, depth);
+        console.log(x)
       }
     }
   
-    handleClick(i){
+    playerMove(i){
       const history = this.state.history.slice(0,this.state.stepNumber + 1);
       const current = history[history.length - 1];
       const squares = current.squares.slice();
@@ -21,7 +34,7 @@ class Game extends React.Component {
       if(calculateWinner(squares) || squares[i]) {
         return;
       }
-  
+      
       squares[i] = this.state.xIsNext ? 'X' : 'O';
   
       this.setState({
@@ -31,6 +44,17 @@ class Game extends React.Component {
         xIsNext: !this.state.xIsNext,
         stepNumber: history.length
       });
+    }
+
+    swapMode(){
+      this.setState({
+        history: [{
+          squares: Array(9).fill(null)
+        }],
+        xIsNext: true,
+        stepNumber: 0,
+        hotseat: !this.state.hotseat
+      })
     }
   
     jumpTo(step){
@@ -57,27 +81,41 @@ class Game extends React.Component {
       });
   
       let status;
+      let buttonText;
   
       if (winner){
         status = 'Winner: ' + winner;
       }
-      else{
-        status = 'Next player: ' + (this.state.xISNext ? 'X' : 'O');
+      else if(history.length < 10){
+        status = 'Next player: ' + (this.state.xIsNext ? 'X' : 'O');
       }
+      else{
+        status = 'Game is a draw.'
+      }
+
+      buttonText = this.state.hotseat ? 'Hot Seat' : 'Versus AI';
   
       return (
         <div className="game">
             <div className="game-header">
-                <p>Tic Tac Toe</p>
+                <h1>Tic Tac Toe</h1>
+            </div>
+            <div className="button-holder">
+              <button className="game-button" onClick={()=>this.swapMode()}>{buttonText}</button>
             </div>
             <div className="game-board">
                 <Board 
                 squares={current.squares}
-                onClick={(i) => this.handleClick(i)}
+                onClick={(i) => this.playerMove(i)}
                 />
             </div>
-            <div className="game-info">
-                <div>{ status }</div>
+            <div>
+                <div><h2>{ status }</h2></div>
+                <div>
+                  <p >
+                    Move History
+                  </p>
+                </div>
                 <ol>{moves}</ol>
             </div>
         </div>
@@ -104,6 +142,50 @@ function calculateWinner(squares) {
       }
     }
     return null;
+}
+
+function findBestMove(squares,xIsNext, depth){
+  let bestMove = -100000
+  let bestSquare;
+  for(let i = 0; i < squares.length; i++){
+    if(!(calculateWinner(squares) || squares[i])) {
+      squares[i] = xIsNext ? 'X' : 'O';
+      let moveVal = miniMax(squares, !xIsNext, depth+1)
+      if(moveVal > bestMove){
+        bestMove=moveVal;
+        bestSquare=i;
+      }
+    }
   }
+  return bestSquare
+}
+
+function miniMax(squares, xIsNext, depth){
+  if(calculateWinner(squares)){
+    if(xIsNext){
+      return 10+depth;
+    }
+    else return depth-10;
+  }
+  if(depth === 9){
+    return 0;
+  }
+  else{
+    if(xIsNext){
+      let bestMove = -100000
+      let bestSquare;
+      for(let i = 0; i < squares.length; i++){
+        if(!squares[i]) {
+          squares[i] = xIsNext ? 'X' : 'O';
+          let moveVal = miniMax(squares, !xIsNext, depth+1)
+          if(moveVal > bestMove){
+            bestMove=moveVal;
+            bestSquare=i;
+          }
+        }
+  }
+    }
+  }
+}
 
 export default Game
