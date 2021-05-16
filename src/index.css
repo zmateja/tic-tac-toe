@@ -43,7 +43,7 @@ ol, ul {
 
 .game {
   background-color: #282c34;
-  min-height: 100vh;
+  min-height: 85vh;
   text-align: center;
   font-size: calc(10px + 2vmin);
   color: white;
@@ -52,7 +52,7 @@ ol, ul {
   text-align: center;
   font-size: calc(10px + 2vmin);
   color: white;
-  margin-bottom: 15px;
+  margin-bottom: -25px;
 }
 .button-holder {
   margin-bottom: 30px;
@@ -64,5 +64,8 @@ ol, ul {
   border: 2px solid black;
   color: white;
   margin-left: 15px;
+}
+.game-text {
+  margin-bottom: -25px;
 }
 

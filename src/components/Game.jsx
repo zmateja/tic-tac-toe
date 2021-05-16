@@ -18,11 +18,11 @@ class Game extends React.Component {
         const history = this.state.history.slice(0,this.state.stepNumber + 1);
         const current = history[history.length - 1];
         const squares = current.squares.slice();
-        let xIsNext = this.state.xisNext;
+        let xIsNext = this.state.xIsNext;
         let depth = this.state.stepNumber;
 
         let x = findBestMove(squares, xIsNext, depth);
-        console.log(x)
+        this.playerMove(x)
       }
     }
   
@@ -81,7 +81,7 @@ class Game extends React.Component {
       });
   
       let status;
-      let buttonText;
+      let gameMode;
   
       if (winner){
         status = 'Winner: ' + winner;
@@ -93,15 +93,20 @@ class Game extends React.Component {
         status = 'Game is a draw.'
       }
 
-      buttonText = this.state.hotseat ? 'Hot Seat' : 'Versus AI';
+      gameMode = this.state.hotseat ? 'Hot Seat' : 'Versus AI';
   
       return (
         <div className="game">
             <div className="game-header">
                 <h1>Tic Tac Toe</h1>
             </div>
+            <div className="game-text">
+              <h2>
+                Game Mode: {gameMode}
+              </h2>
+            </div>
             <div className="button-holder">
-              <button className="game-button" onClick={()=>this.swapMode()}>{buttonText}</button>
+              <button className="game-button" onClick={()=>this.swapMode()}>Change Mode</button>
             </div>
             <div className="game-board">
                 <Board 
@@ -110,7 +115,7 @@ class Game extends React.Component {
                 />
             </div>
             <div>
-                <div><h2>{ status }</h2></div>
+                <div className="game-text"><h2>{ status }</h2></div>
                 <div>
                   <p >
                     Move History
@@ -145,12 +150,15 @@ function calculateWinner(squares) {
 }
 
 function findBestMove(squares,xIsNext, depth){
+  //human player is always X in my implementation. We optimize max for X, min for O, no need to implement the other option here.
   let bestMove = -100000
   let bestSquare;
+  let isXNext=xIsNext
   for(let i = 0; i < squares.length; i++){
-    if(!(calculateWinner(squares) || squares[i])) {
-      squares[i] = xIsNext ? 'X' : 'O';
-      let moveVal = miniMax(squares, !xIsNext, depth+1)
+    let nextBoard = squares.slice();
+    if(!(calculateWinner(nextBoard) || nextBoard[i])) {
+      nextBoard[i] = isXNext ? 'X' : 'O';
+      let moveVal = miniMax(nextBoard, !isXNext, depth+1)
       if(moveVal > bestMove){
         bestMove=moveVal;
         bestSquare=i;
@@ -161,29 +169,44 @@ function findBestMove(squares,xIsNext, depth){
 }
 
 function miniMax(squares, xIsNext, depth){
+  let isXNext=xIsNext
   if(calculateWinner(squares)){
-    if(xIsNext){
-      return 10+depth;
+    if(isXNext){
+      return 20-depth;
     }
-    else return depth-10;
+    else return -20+depth;
   }
   if(depth === 9){
     return 0;
   }
   else{
-    if(xIsNext){
+    if(!isXNext){
       let bestMove = -100000
-      let bestSquare;
       for(let i = 0; i < squares.length; i++){
-        if(!squares[i]) {
-          squares[i] = xIsNext ? 'X' : 'O';
-          let moveVal = miniMax(squares, !xIsNext, depth+1)
+        let nextBoard = squares.slice();
+        if(!nextBoard[i]) {
+          nextBoard[i] = isXNext ? 'X' : 'O';
+          let moveVal = miniMax(nextBoard, !isXNext, depth+1)
           if(moveVal > bestMove){
             bestMove=moveVal;
-            bestSquare=i;
           }
         }
-  }
+      }
+      return bestMove
+    }
+    else if(isXNext){
+      let bestMove = 100000
+      for(let i = 0; i < squares.length; i++){
+        let nextBoard = squares.slice();
+        if(!nextBoard[i]) {
+          nextBoard[i] = isXNext ? 'X' : 'O';
+          let moveVal = miniMax(nextBoard, !isXNext, depth+1)
+          if(moveVal < bestMove){
+            bestMove=moveVal;
+          }
+        }
+      }
+      return bestMove
     }
   }
 }
